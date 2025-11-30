@@ -5,22 +5,20 @@ import lombok.*;
 
 @Entity
 @Table(name = "vendors")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@Builder // <--- YOU MUST ADD THIS LINE
 public class Vendor {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable=false, unique=true)
-    private String username;
+    @Column(nullable = false, unique = true)
+    private String email;
 
-    @Column(nullable=false)
-    private String password; // stored encoded
+    @Column(nullable = false)
+    private String password;
 
-    private String displayName;
+    private String name;
 }

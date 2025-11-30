@@ -2,9 +2,7 @@ package com.krish.voicecatlogagent.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 @Table(name = "catalog_entries")
@@ -19,21 +17,38 @@ public class CatalogEntry {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String productName;
-    private String color;
-    private String brand;
+    @Column(nullable = false)
+    private String name;
 
-    @Column(precision = 10, scale = 2)
-    private BigDecimal price;
-
-    @Column(length = 2000)
+    @Column(length = 1000)
     private String description;
 
-    private String tags;
+    private String brand;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "vendor_id")
-    private Vendor vendor;
+    private double discount;
 
-    private LocalDateTime createdAt;
+    @Column(nullable = false)
+    private double price;
+
+    private String category;
+
+    @Temporal(TemporalType.DATE)
+    private Date releaseDate;
+
+    private boolean productAvailable;
+
+    private int stockQuantity;
+
+    // --- Image Fields (As requested) ---
+    private String imageName;
+
+    private String imageType;
+
+    @Lob
+    @Column(columnDefinition = "LONGBLOB")
+    private byte[] imageData;
+
+    // Link to Vendor
+    @Column(name = "vendor_id")
+    private Long vendorId;
 }
