@@ -7,24 +7,25 @@ COPY mvnw .
 COPY .mvn .mvn
 COPY pom.xml .
 
-# Pre-download dependencies (cache optimization)
+# FIX: Give executable permission to mvnw
+RUN chmod +x mvnw
+
+# Pre-download dependencies
 RUN ./mvnw dependency:go-offline
 
 # Copy source code
 COPY src src
 
-# Build application
+# Build the application
 RUN ./mvnw clean package -DskipTests
 
 # ---------- RUNTIME STAGE ----------
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
-# Copy the built jar from the build stage
+# Copy final jar to runtime image
 COPY --from=build /app/target/*.jar app.jar
 
-# Expose port
 EXPOSE 8080
 
-# Run Spring Boot
 ENTRYPOINT ["java", "-jar", "app.jar"]
