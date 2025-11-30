@@ -1,19 +1,30 @@
-# Use a lightweight Java runtime (no Maven needed)
-FROM eclipse-temurin:17-jre-alpine
-
-# Set working directory
+# ---------- BUILD STAGE ----------
+FROM eclipse-temurin:21-jdk AS build
 WORKDIR /app
 
-# Copy the JAR file you just built on your machine
-COPY target/*.jar app.jar
+# Copy Maven wrapper and project files
+COPY mvnw .
+COPY .mvn .mvn
+COPY pom.xml .
 
-# Expose the port
+# Pre-download dependencies (cache optimization)
+RUN ./mvnw dependency:go-offline
+
+# Copy source code
+COPY src src
+
+# Build application
+RUN ./mvnw clean package -DskipTests
+
+# ---------- RUNTIME STAGE ----------
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+
+# Copy the built jar from the build stage
+COPY --from=build /app/target/*.jar app.jar
+
+# Expose port
 EXPOSE 8080
 
-# Environment variables (default to host.docker.internal for local MySQL)
-ENV DB_URL=jdbc:mysql://host.docker.internal:3306/catlogagent?createDatabaseIfNotExist=true
-ENV DB_USERNAME=root
-ENV DB_PASSWORD=your_password
-
-# Run the app
+# Run Spring Boot
 ENTRYPOINT ["java", "-jar", "app.jar"]
