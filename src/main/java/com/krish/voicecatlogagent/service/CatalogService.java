@@ -12,4 +12,6 @@ public interface CatalogService {
     CatalogEntry getProductById(Long id, String vendorEmail);
     CatalogEntry updateProduct(Long id, CatalogEntryDto dto, MultipartFile imageFile, String vendorEmail) throws IOException;
     void deleteProduct(Long id, String vendorEmail);
+    List<CatalogEntry> getPublicCatalog();
+
 }

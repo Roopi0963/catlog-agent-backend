@@ -7,4 +7,6 @@ import java.util.Optional;
 public interface CatalogEntryRepository extends JpaRepository<CatalogEntry, Long> {
     List<CatalogEntry> findByVendorId(Long vendorId);
     Optional<CatalogEntry> findByIdAndVendorId(Long id, Long vendorId);
+
+    List<CatalogEntry> findByProductAvailableTrue();
 }

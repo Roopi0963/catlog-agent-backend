@@ -55,6 +55,11 @@ public class CatalogServiceImpl implements CatalogService {
         Vendor vendor = getVendor(vendorEmail);
         return catalogRepository.findByVendorId(vendor.getId());
     }
+    @Override
+    public List<CatalogEntry> getPublicCatalog() {
+        return catalogRepository.findByProductAvailableTrue();
+    }
+
 
     @Override
     public CatalogEntry getProductById(Long id, String vendorEmail) {
