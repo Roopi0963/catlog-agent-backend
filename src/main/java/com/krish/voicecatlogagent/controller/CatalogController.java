@@ -37,6 +37,12 @@ public class CatalogController {
     public ResponseEntity<?> getAllMyProducts(@AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(catalogService.getAllMyProducts(userDetails.getUsername()));
     }
+    // --- PUBLIC CATALOG (NO AUTH) ---
+    @GetMapping("/public")
+    public ResponseEntity<?> getPublicCatalog() {
+        return ResponseEntity.ok(catalogService.getPublicCatalog());
+    }
+
 
     // --- READ ONE ---
     @GetMapping("/{id}")
