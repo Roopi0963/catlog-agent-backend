@@ -47,4 +47,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         return null;
     }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+
+        String path = request.getRequestURI();
+        String method = request.getMethod();
+
+        // ✅ Skip JWT for public endpoints & CORS preflight
+        return "OPTIONS".equalsIgnoreCase(method)
+                || path.startsWith("/api/auth/")
+                || path.startsWith("/api/catalog/")
+                || path.equals("/error");
+    }
+
 }
