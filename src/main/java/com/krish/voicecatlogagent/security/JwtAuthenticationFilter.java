@@ -68,7 +68,7 @@ protected boolean shouldNotFilter(HttpServletRequest request) {
 
     return "OPTIONS".equalsIgnoreCase(method)
             || path.startsWith("/api/auth/")
-            || path.equals("/api/catalog/public")
+//            || path.equals("/api/catalog/public")
             || path.equals("/error");
 }
 
