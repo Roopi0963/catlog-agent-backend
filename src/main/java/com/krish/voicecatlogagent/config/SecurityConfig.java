@@ -57,7 +57,7 @@ public class SecurityConfig {
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // Allow Auth endpoints
-                        .requestMatchers("/api/auth/**","/api/catalog/**",
+                        .requestMatchers("/api/auth/**","/api/catalog/public",
                                 "/error").permitAll()
                         // FIX: Allow the default error controller so exceptions can be seen
                         .requestMatchers("/error").permitAll()

@@ -1,8 +1,86 @@
+//package com.krish.voicecatlogagent.controller;
+//
+//import com.fasterxml.jackson.databind.ObjectMapper;
+//import com.krish.voicecatlogagent.dto.CatalogEntryDto;
+//import com.krish.voicecatlogagent.model.CatalogEntry;
+//import com.krish.voicecatlogagent.service.CatalogService;
+//import lombok.RequiredArgsConstructor;
+//import org.springframework.http.MediaType;
+//import org.springframework.http.ResponseEntity;
+//import org.springframework.security.core.annotation.AuthenticationPrincipal;
+//import org.springframework.security.core.userdetails.UserDetails;
+//import org.springframework.web.bind.annotation.*;
+//import org.springframework.web.multipart.MultipartFile;
+//import java.io.IOException;
+//
+//@RestController
+//@RequestMapping("/api/catalog")
+//@RequiredArgsConstructor
+//public class CatalogController {
+//
+//    private final CatalogService catalogService;
+//    private final ObjectMapper objectMapper;
+//
+//    // --- CREATE ---
+//    @PostMapping(value = "/save", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//    public ResponseEntity<?> createProduct(
+//            @RequestPart("product") String productJson,
+//            @RequestPart(value = "image", required = false) MultipartFile imageFile,
+//            @AuthenticationPrincipal UserDetails userDetails
+//    ) throws IOException {
+//        CatalogEntryDto dto = objectMapper.readValue(productJson, CatalogEntryDto.class);
+//        return ResponseEntity.ok(catalogService.createProduct(dto, imageFile, userDetails.getUsername()));
+//    }
+//
+//    // --- READ ALL ---
+//    @GetMapping("/list")
+//    public ResponseEntity<?> getAllMyProducts(@AuthenticationPrincipal UserDetails userDetails) {
+//        return ResponseEntity.ok(catalogService.getAllMyProducts(userDetails.getUsername()));
+//    }
+//    // --- PUBLIC CATALOG (NO AUTH) ---
+//    @GetMapping("/public")
+//    public ResponseEntity<?> getPublicCatalog() {
+//        return ResponseEntity.ok(catalogService.getPublicCatalog());
+//    }
+//
+//
+//    // --- READ ONE ---
+//    @GetMapping("/{id}")
+//    public ResponseEntity<?> getProduct(
+//            @PathVariable Long id,
+//            @AuthenticationPrincipal UserDetails userDetails
+//    ) {
+//        return ResponseEntity.ok(catalogService.getProductById(id, userDetails.getUsername()));
+//    }
+//
+//    // --- UPDATE ---
+//    @PutMapping(value = "/update/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//    public ResponseEntity<?> updateProduct(
+//            @PathVariable Long id,
+//            @RequestPart("product") String productJson,
+//            @RequestPart(value = "image", required = false) MultipartFile imageFile,
+//            @AuthenticationPrincipal UserDetails userDetails
+//    ) throws IOException {
+//        CatalogEntryDto dto = objectMapper.readValue(productJson, CatalogEntryDto.class);
+//        return ResponseEntity.ok(catalogService.updateProduct(id, dto, imageFile, userDetails.getUsername()));
+//    }
+//
+//    // --- DELETE ---
+//    @DeleteMapping("/delete/{id}")
+//    public ResponseEntity<?> deleteProduct(
+//            @PathVariable Long id,
+//            @AuthenticationPrincipal UserDetails userDetails
+//    ) {
+//        catalogService.deleteProduct(id, userDetails.getUsername());
+//        return ResponseEntity.ok("Product deleted successfully");
+//    }
+//}
+
+
 package com.krish.voicecatlogagent.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.krish.voicecatlogagent.dto.CatalogEntryDto;
-import com.krish.voicecatlogagent.model.CatalogEntry;
 import com.krish.voicecatlogagent.service.CatalogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -11,6 +89,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.io.IOException;
 
 @RestController
@@ -21,39 +100,68 @@ public class CatalogController {
     private final CatalogService catalogService;
     private final ObjectMapper objectMapper;
 
-    // --- CREATE ---
+    // ================= CREATE =================
     @PostMapping(value = "/save", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createProduct(
             @RequestPart("product") String productJson,
             @RequestPart(value = "image", required = false) MultipartFile imageFile,
             @AuthenticationPrincipal UserDetails userDetails
     ) throws IOException {
-        CatalogEntryDto dto = objectMapper.readValue(productJson, CatalogEntryDto.class);
-        return ResponseEntity.ok(catalogService.createProduct(dto, imageFile, userDetails.getUsername()));
+
+        // ✅ FIX: Prevent NullPointerException
+        if (userDetails == null) {
+            return ResponseEntity.status(401)
+                    .body("Unauthorized: Please login again");
+        }
+
+        CatalogEntryDto dto =
+                objectMapper.readValue(productJson, CatalogEntryDto.class);
+
+        return ResponseEntity.ok(
+                catalogService.createProduct(
+                        dto,
+                        imageFile,
+                        userDetails.getUsername()
+                )
+        );
     }
 
-    // --- READ ALL ---
+    // ================= READ (PRIVATE) =================
     @GetMapping("/list")
-    public ResponseEntity<?> getAllMyProducts(@AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.ok(catalogService.getAllMyProducts(userDetails.getUsername()));
+    public ResponseEntity<?> getAllMyProducts(
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        if (userDetails == null) {
+            return ResponseEntity.status(401).body("Unauthorized");
+        }
+
+        return ResponseEntity.ok(
+                catalogService.getAllMyProducts(userDetails.getUsername())
+        );
     }
-    // --- PUBLIC CATALOG (NO AUTH) ---
+
+    // ================= READ (PUBLIC) =================
     @GetMapping("/public")
     public ResponseEntity<?> getPublicCatalog() {
         return ResponseEntity.ok(catalogService.getPublicCatalog());
     }
 
-
-    // --- READ ONE ---
+    // ================= READ ONE =================
     @GetMapping("/{id}")
     public ResponseEntity<?> getProduct(
             @PathVariable Long id,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        return ResponseEntity.ok(catalogService.getProductById(id, userDetails.getUsername()));
+        if (userDetails == null) {
+            return ResponseEntity.status(401).body("Unauthorized");
+        }
+
+        return ResponseEntity.ok(
+                catalogService.getProductById(id, userDetails.getUsername())
+        );
     }
 
-    // --- UPDATE ---
+    // ================= UPDATE =================
     @PutMapping(value = "/update/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateProduct(
             @PathVariable Long id,
@@ -61,16 +169,34 @@ public class CatalogController {
             @RequestPart(value = "image", required = false) MultipartFile imageFile,
             @AuthenticationPrincipal UserDetails userDetails
     ) throws IOException {
-        CatalogEntryDto dto = objectMapper.readValue(productJson, CatalogEntryDto.class);
-        return ResponseEntity.ok(catalogService.updateProduct(id, dto, imageFile, userDetails.getUsername()));
+
+        if (userDetails == null) {
+            return ResponseEntity.status(401).body("Unauthorized");
+        }
+
+        CatalogEntryDto dto =
+                objectMapper.readValue(productJson, CatalogEntryDto.class);
+
+        return ResponseEntity.ok(
+                catalogService.updateProduct(
+                        id,
+                        dto,
+                        imageFile,
+                        userDetails.getUsername()
+                )
+        );
     }
 
-    // --- DELETE ---
+    // ================= DELETE =================
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteProduct(
             @PathVariable Long id,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
+        if (userDetails == null) {
+            return ResponseEntity.status(401).body("Unauthorized");
+        }
+
         catalogService.deleteProduct(id, userDetails.getUsername());
         return ResponseEntity.ok("Product deleted successfully");
     }
