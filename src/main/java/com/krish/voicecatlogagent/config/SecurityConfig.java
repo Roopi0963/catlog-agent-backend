@@ -57,7 +57,8 @@ public class SecurityConfig {
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // Allow Auth endpoints
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/auth/**","/api/catalog/**",
+                                "/error").permitAll()
                         // FIX: Allow the default error controller so exceptions can be seen
                         .requestMatchers("/error").permitAll()
                         // Secure everything else
@@ -83,7 +84,8 @@ public class SecurityConfig {
     CorsConfiguration config = new CorsConfiguration();
 
     config.setAllowedOrigins(List.of(
-            "http://localhost:5173",                         // Local React
+            "http://localhost:5173",
+            "http://localhost:5174",// Local React
             "https://catlog-agent-backend.onrender.com"      // Render backend domain
     ));
 
