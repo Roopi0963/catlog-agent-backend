@@ -86,7 +86,8 @@ public class SecurityConfig {
     config.setAllowedOrigins(List.of(
             "http://localhost:5173",
             "http://localhost:5174",// Local React
-            "https://catlog-agent-backend.onrender.com"      // Render backend domain
+            "https://catlog-agent-backend.onrender.com"
+            // Render backend domain
     ));
 
     config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
