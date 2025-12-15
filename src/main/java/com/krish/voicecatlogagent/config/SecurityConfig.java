@@ -86,7 +86,8 @@ public class SecurityConfig {
     config.setAllowedOrigins(List.of(
             "http://localhost:5173",
             "http://localhost:5174",// Local React
-            "https://catlog-agent-backend.onrender.com"
+            "https://catlog-agent-backend.onrender.com",
+            "https://catalog-agent.vercel.app/"
             // Render backend domain
     ));
 
